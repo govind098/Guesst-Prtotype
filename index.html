@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Room Allocation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h2,
+        h3 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .form-group {
+            flex: 1 1 45%;
+            /* Each field takes about 45% of the row */
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input,
+        select,
+        button {
+            padding: 8px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #2277d2;
+            /* Changed to blue */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            flex: 1 1 100%;
+        }
+
+        button:hover {
+            background-color: #2277d2;
+            /* Darker blue for hover */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #2277d2;
+            /* Changed to blue */
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Guest Room Allocation</h2>
+        <form id="roomAllocationForm">
+            <div class="form-group">
+                <label for="guestName">Guest Name:</label>
+                <input type="text" id="guestName" placeholder="Name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="guestId">Guest ID Proof:</label>
+                <input type="text" id="guestId" placeholder="ID Proof" required>
+            </div>
+
+            <div class="form-group">
+                <label for="guestAddress">Guest Address:</label>
+                <input type="text" id="guestAddress" placeholder="Address" required>
+            </div>
+
+            <div class="form-group">
+                <label for="mobileNumber">Mobile Number:</label>
+                <input type="tel" id="mobileNumber" pattern="[0-9]{10}" required placeholder="10-digit number">
+            </div>
+
+            <div class="form-group">
+                <label for="roomType">Room Type:</label>
+                <select id="roomType" required onchange="updateRoomNumbers()">
+                    <option value="">Select Room Type</option>
+                    <option value="single">Single</option>
+                    <option value="double">Double</option>
+                    <option value="suite">Suite</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="roomNumber">Room Number:</label>
+                <select id="roomNumber" required>
+                    <option value="">Select Room Number</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="checkIn">Check-in Date:</label>
+                <input type="date" id="checkIn" required>
+            </div>
+
+            <div class="form-group">
+                <label for="checkOut">Check-out Date:</label>
+                <input type="date" id="checkOut" required>
+            </div>
+
+            <button type="button" onclick="allocateRoom()">Allocate Room</button>
+        </form>
+
+        <h3>Allocation Details</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Guest ID Proof</th>
+                    <th>Guest Name</th>
+                    <th>Guest Address</th>
+                    <th>Mobile Number</th>
+                    <th>Room Type</th>
+                    <th>Room Number</th>
+                    <th>Check-in Date</th>
+                    <th>Check-out Date</th>
+                </tr>
+            </thead>
+            <tbody id="allocationTable">
+                <!-- Allocation details will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Define available rooms for each type
+        const availableRooms = {
+            single: [101, 102, 103, 104, 105],
+            double: [201, 202, 203, 204, 205],
+            suite: [301, 302, 303]
+        };
+
+        // Function to update room numbers based on selected room type
+        function updateRoomNumbers() {
+            const roomType = document.getElementById('roomType').value;
+            const roomNumberSelect = document.getElementById('roomNumber');
+
+            // Clear previous room numbers
+            roomNumberSelect.innerHTML = '<option value="">Select Room Number</option>';
+
+            // Populate with available rooms for the selected type
+            if (roomType && availableRooms[roomType]) {
+                availableRooms[roomType].forEach(room => {
+                    const option = document.createElement('option');
+                    option.value = room;
+                    option.textContent = room;
+                    roomNumberSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Function to allocate room and update table
+        function allocateRoom() {
+            const guestName = document.getElementById('guestName').value;
+            const guestId = document.getElementById('guestId').value;
+            const guestAddress = document.getElementById('guestAddress').value;
+            const mobileNumber = document.getElementById('mobileNumber').value;
+            const roomType = document.getElementById('roomType').value;
+            const roomNumber = document.getElementById('roomNumber').value;
+            const checkIn = document.getElementById('checkIn').value;
+            const checkOut = document.getElementById('checkOut').value;
+
+            if (!guestName || !guestId || !guestAddress || !mobileNumber || !roomType || !roomNumber || !checkIn || !checkOut) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            // Add allocation details to the table
+            const table = document.getElementById('allocationTable');
+            const newRow = table.insertRow();
+
+            newRow.insertCell(0).textContent = guestId;
+            newRow.insertCell(1).textContent = guestName;
+            newRow.insertCell(2).textContent = guestAddress;
+            newRow.insertCell(3).textContent = mobileNumber;
+            newRow.insertCell(4).textContent = roomType;
+            newRow.insertCell(5).textContent = roomNumber;
+            newRow.insertCell(6).textContent = checkIn;
+            newRow.insertCell(7).textContent = checkOut;
+
+            // Remove the allocated room number from the available rooms
+            const roomIndex = availableRooms[roomType].indexOf(parseInt(roomNumber));
+            if (roomIndex > -1) {
+                availableRooms[roomType].splice(roomIndex, 1);
+            }
+
+            // Reset the form and update available room numbers
+            document.getElementById('roomAllocationForm').reset();
+            updateRoomNumbers();
+        }
+    </script>
+</body>
+
+</html>
